@@ -71,6 +71,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 {
                     document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
                 }
+                else if (entry.HasTemporaryValue(property))
+                {
+                    ((InternalEntityEntry)entry)[property] = entry.GetCurrentValue(property);
+                }
             }
 
             foreach (var ownedNavigation in entry.EntityType.GetNavigations())
@@ -129,6 +133,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     {
                         document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
                         anyPropertyUpdated = true;
+                    }
+                    else if (entry.HasTemporaryValue(property))
+                    {
+                        ((InternalEntityEntry)entry)[property] = entry.GetCurrentValue(property);
                     }
                 }
             }

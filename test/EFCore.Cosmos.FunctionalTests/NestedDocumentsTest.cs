@@ -80,8 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        // #12086
-        //[ConditionalFact]
+        [ConditionalFact]
         public virtual async Task Can_add_collection_dependent_to_owner()
         {
             await using (var testDatabase = CreateTestStore())
@@ -158,9 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     var json = context.Entry(people[1]).Property<JObject>("__jObject").CurrentValue;
                     var jsonAddress = (JObject)((JArray)json["Stored Addresses"])[0];
                     Assert.Equal("Second", jsonAddress[nameof(Address.Street)]);
-                    // Uncomment when issue #13578 is fixed
-                    //Assert.Equal(2, jsonAddress["unmappedId"]);
-                    //Assert.Equal(2, jsonAddress.Count);
+                    Assert.Equal(2, jsonAddress["unmappedId"]);
+                    Assert.Equal(2, jsonAddress.Count);
 
                     addresses = people[2].Addresses.ToList();
                     Assert.Equal(3, addresses.Count);
@@ -192,8 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        // #12086
-        //[ConditionalFact]
+        [ConditionalFact]
         public virtual async Task Can_query_just_nested_collection()
         {
             await using (var testDatabase = CreateTestStore())

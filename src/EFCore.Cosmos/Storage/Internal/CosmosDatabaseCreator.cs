@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -55,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             {
                 created |= _cosmosClient.CreateContainerIfNotExists(
                     entityType.GetCosmosContainer(),
-                    entityType.GetCosmosPartitionKeyStoreName());
+                    GetCosmosPartitionKeyStoreName(entityType));
             }
 
             if (created)
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             {
                 created |= await _cosmosClient.CreateContainerIfNotExistsAsync(
                     entityType.GetCosmosContainer(),
-                    entityType.GetCosmosPartitionKeyStoreName(),
+                    GetCosmosPartitionKeyStoreName(entityType),
                     cancellationToken);
             }
 
@@ -145,5 +146,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
+
+        /// <summary>
+        ///     Returns the store name of the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the partition key property name for. </param>
+        /// <returns> The name of the partition key property. </returns>
+        private static string GetCosmosPartitionKeyStoreName([NotNull] IEntityType entityType)
+        {
+            var name = entityType.GetCosmosPartitionKeyPropertyName();
+            if (name != null)
+            {
+                return entityType.FindProperty(name).GetCosmosPropertyName();
+            }
+
+            return CosmosClientWrapper.DefaultPartitionKey;
+        }
     }
 }
