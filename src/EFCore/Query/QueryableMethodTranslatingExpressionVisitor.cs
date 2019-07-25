@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -430,13 +429,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             break;
                     }
                 }
-            }
-
-            // TODO: Skip ToOrderedQueryable method. See Issue#15591
-            if (methodCallExpression.Method.DeclaringType == typeof(NavigationExpansionReducingVisitor)
-                && methodCallExpression.Method.Name == nameof(NavigationExpansionReducingVisitor.ToOrderedQueryable))
-            {
-                return Visit(methodCallExpression.Arguments[0]);
             }
 
             return _subquery

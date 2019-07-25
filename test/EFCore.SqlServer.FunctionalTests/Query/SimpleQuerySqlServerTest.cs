@@ -3879,8 +3879,8 @@ ORDER BY [t].[CustomerID]");
 FROM (
     SELECT DISTINCT [c].[CustomerID]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'A%'
-) AS [t]");
+) AS [t]
+WHERE [t].[CustomerID] LIKE N'A%'");
         }
 
         public override async Task Anonymous_complex_distinct_where(bool isAsync)
@@ -3915,8 +3915,8 @@ ORDER BY [t].[c]");
 FROM (
     SELECT DISTINCT [c].[CustomerID] + [c].[City] AS [c]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] + [c].[City] IS NOT NULL AND ([c].[CustomerID] + [c].[City] LIKE N'A%')
-) AS [t]");
+) AS [t]
+WHERE [t].[c] IS NOT NULL AND ([t].[c] LIKE N'A%')");
         }
 
         public override async Task Anonymous_complex_orderby(bool isAsync)
@@ -3983,8 +3983,8 @@ ORDER BY [t].[CustomerID]");
 FROM (
     SELECT DISTINCT [c].[CustomerID]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'A%'
-) AS [t]");
+) AS [t]
+WHERE [t].[CustomerID] LIKE N'A%'");
         }
 
         public override async Task DTO_complex_distinct_where(bool isAsync)
@@ -4019,8 +4019,8 @@ ORDER BY [t].[c]");
 FROM (
     SELECT DISTINCT [c].[CustomerID] + [c].[City] AS [c]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] + [c].[City] IS NOT NULL AND ([c].[CustomerID] + [c].[City] LIKE N'A%')
-) AS [t]");
+) AS [t]
+WHERE [t].[c] IS NOT NULL AND ([t].[c] LIKE N'A%')");
         }
 
         public override async Task DTO_complex_orderby(bool isAsync)

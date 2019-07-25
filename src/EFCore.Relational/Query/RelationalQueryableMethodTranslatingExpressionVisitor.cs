@@ -7,7 +7,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -51,9 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, sqlTranslator);
             _sqlExpressionFactory = sqlExpressionFactory;
         }
-
-        private static Type CreateTransparentIdentifierType(Type outerType, Type innerType)
-            => typeof(TransparentIdentifier<,>).MakeGenericType(outerType, innerType);
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
@@ -438,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
             if (joinPredicate != null)
             {
-                var transparentIdentifierType = CreateTransparentIdentifierType(
+                var transparentIdentifierType = TransparentIdentifierType.Create(
                     resultSelector.Parameters[0].Type,
                     resultSelector.Parameters[1].Type);
 
@@ -461,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
             if (joinPredicate != null)
             {
-                var transparentIdentifierType = CreateTransparentIdentifierType(
+                var transparentIdentifierType = TransparentIdentifierType.Create(
                     resultSelector.Parameters[0].Type,
                     resultSelector.Parameters[1].Type);
 
@@ -726,7 +725,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
                 {
-                    var transparentIdentifierType = CreateTransparentIdentifierType(
+                    var transparentIdentifierType = TransparentIdentifierType.Create(
                         resultSelector.Parameters[0].Type,
                         resultSelector.Parameters[1].Type);
 
@@ -938,6 +937,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return memberExpression.Update(innerExpression);
             }
 
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
+                {
+                    source = Visit(source);
+                    if (source is EntityShaperExpression
+                        || (source is UnaryExpression innerUnaryExpression
+                        && innerUnaryExpression.NodeType == ExpressionType.Convert
+                        && innerUnaryExpression.Operand is EntityShaperExpression))
+                    {
+                        var collectionNavigation = Expand(source, MemberIdentity.Create(navigationName));
+                        if (collectionNavigation != null)
+                        {
+                            return collectionNavigation;
+                        }
+                    }
+
+                    return methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
+                }
+                return base.VisitMethodCall(methodCallExpression);
+            }
+
             protected override Expression VisitExtension(Expression extensionExpression)
                 => extensionExpression is EntityShaperExpression
                     ? extensionExpression
@@ -974,7 +995,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ? entityType.FindNavigation(member.MemberInfo)
                         : entityType.FindNavigation(member.Name);
 
-                    if (navigation != null)
+                    if (navigation != null
+                        && navigation.ForeignKey.IsOwnership)
                     {
                         if (navigation.IsCollection())
                         {

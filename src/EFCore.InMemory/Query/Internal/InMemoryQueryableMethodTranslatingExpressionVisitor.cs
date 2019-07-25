@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
             innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
 
-            var transparentIdentifierType = CreateTransparentIdentifierType(
+            var transparentIdentifierType = TransparentIdentifierType.Create(
                 resultSelector.Parameters[0].Type,
                 resultSelector.Parameters[1].Type);
 
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
             innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
 
-            var transparentIdentifierType = CreateTransparentIdentifierType(
+            var transparentIdentifierType = TransparentIdentifierType.Create(
                 resultSelector.Parameters[0].Type,
                 resultSelector.Parameters[1].Type);
 
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
                 {
-                    var transparentIdentifierType = CreateTransparentIdentifierType(
+                    var transparentIdentifierType = TransparentIdentifierType.Create(
                         resultSelector.Parameters[0].Type,
                         resultSelector.Parameters[1].Type);
 

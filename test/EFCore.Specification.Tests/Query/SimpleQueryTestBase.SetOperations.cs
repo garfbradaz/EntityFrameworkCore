@@ -287,14 +287,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var ctx = CreateContext())
             {
-                Assert.Throws<NotSupportedException>(() =>
+                Assert.Throws<InvalidOperationException>(() =>
                     ctx.Customers
                         .Where(c => c.City == "Berlin")
                         .Include(c => c.Orders)
                         .Union(ctx.Customers.Where(c => c.City == "London"))
                         .ToList());
 
-                Assert.Throws<NotSupportedException>(() =>
+                Assert.Throws<InvalidOperationException>(() =>
                     ctx.Customers
                         .Where(c => c.City == "Berlin")
                         .Union(ctx.Customers
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var ctx = CreateContext())
             {
-                Assert.Throws<NotSupportedException>(() =>
+                Assert.Throws<InvalidOperationException>(() =>
                     ctx.Customers
                         .Where(c => c.City == "Berlin")
                         .Include(c => c.Orders)

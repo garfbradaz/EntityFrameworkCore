@@ -9,7 +9,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.NavigationExpansion.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
@@ -243,9 +242,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             ? translation
                             : Expression.Convert(translation, nullConditionalExpression.Type);
                     }
-
-                case CorrelationPredicateExpression correlationPredicateExpression:
-                    return Visit(correlationPredicateExpression.EqualExpression);
 
                 default:
                     throw new InvalidOperationException();

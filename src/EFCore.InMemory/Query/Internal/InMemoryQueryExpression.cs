@@ -380,24 +380,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _projectionMapping = projectionMapping;
         }
 
-        public readonly struct TransparentIdentifier<TOuter, TInner>
-        {
-            [UsedImplicitly]
-#pragma warning disable IDE0051 // Remove unused private members
-            private TransparentIdentifier(TOuter outer, TInner inner)
-#pragma warning restore IDE0051 // Remove unused private members
-            {
-                Outer = outer;
-                Inner = inner;
-            }
-
-            [UsedImplicitly]
-            public readonly TOuter Outer;
-
-            [UsedImplicitly]
-            public readonly TInner Inner;
-        }
-
         public virtual void AddLeftJoin(
             InMemoryQueryExpression innerQueryExpression,
             LambdaExpression outerKeySelector,
@@ -405,8 +387,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             Type transparentIdentifierType)
         {
             // GroupJoin phase
-            var groupTransparentIdentifierType = typeof(TransparentIdentifier<,>)
-                .MakeGenericType(typeof(ValueBuffer), typeof(IEnumerable<ValueBuffer>));
+            var groupTransparentIdentifierType = TransparentIdentifierType.Create(
+                typeof(ValueBuffer), typeof(IEnumerable<ValueBuffer>));
             var outerParameter = Parameter(typeof(ValueBuffer), "outer");
             var innerParameter = Parameter(typeof(IEnumerable<ValueBuffer>), "inner");
             var outerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
